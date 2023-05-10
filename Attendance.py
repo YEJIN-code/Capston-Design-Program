@@ -25,7 +25,7 @@ class Attendance:
     self.mode = mode
 
     # Add a title 
-    self.win.title("Multi-thread-based Socket Chatting (TCP Client)")
+    self.win.title("Attendance")
     hostname = socket.gethostname()
     hostAddr = socket.gethostbyname(hostname)
     print("My (client) IP address = {}".format(hostAddr))
@@ -38,14 +38,12 @@ class Attendance:
     # TCP client
   def TCPClient(self):
     self.cliSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    servAddr_str = input("Server IP Addr (e.g., '127.0.0.1') = ")
+    servAddr_str = input("서버 IP를 입력하여 연결하세요 ")
     self.cliSock.connect((servAddr_str, SocketChat_PortNumber)) 
- 
+
     servAddr = self.cliSock.getpeername()
-    print("TCP Client is connected to server ({})\n".format(servAddr))
-    self.scr_cliDisplay.insert(tk.INSERT,"TCP client is connected to server \n")
-    self.scr_cliDisplay.insert(tk.INSERT,"TCP server IP address : {}\n".format(servAddr[0]) )
-    self.scr_cliDisplay.insert(tk.INSERT, "*** 강의 시작, 종료 시간을 24:00 형식으로 입력하세요\n")
+    self.scr_cliDisplay.insert(tk.INSERT,"*** 부정 출석 방지 시스템 서버와 연결되었습니다. \n")
+    self.scr_cliDisplay.insert(tk.INSERT, "*** 강의 시작, 종료 시간을 24:00 형식으로 입력하세요.\n")
     self.servAddr_entry.insert(END, servAddr[0])
     
     
@@ -73,7 +71,7 @@ class Attendance:
     exit()
 
   def connect_server(self):
-    self.scr_cliDisplay.insert(tk.INSERT,"Connecting to server ....")
+    self.scr_cliDisplay.insert(tk.INSERT,"Connecting to server ...")
     self.myIpAddr = self.myAddr.get()
     self.peerIpAddr = self.peerAddr.get()
     self.scr_cliDisplay.insert(tk.INSERT, "My IP Address : " + self.myIpAddr + '\n')
@@ -85,7 +83,8 @@ class Attendance:
   def cli_send(self):
     while True:
       msgToServer = str(count)
-      self.scr_cliDisplay.insert(tk.INSERT,"<< " + msgToServer + "\n")
+      self.scr_cliDisplay.delete("1.0", "end")
+      self.scr_cliDisplay.insert(tk.INSERT,"현재 출석: " + msgToServer + "명\n")
       self.cliSock.send(bytes(msgToServer.encode()))
       self.scr_cliInput.delete('1.0', END)
       sleep(1)
@@ -103,15 +102,15 @@ class Attendance:
     self.scr_cliInput.delete('1.0', END) 
 
   def createWidgets(self):
-    frame = ttk.LabelFrame(self.win, text="강의실 내 인원 파악 프로그램 - 출결시스템 (Client)")
+    frame = ttk.LabelFrame(self.win, text="출결시스템")
     frame.grid(column=0, row=0, padx=8, pady=3)
     
     frame_addr_connect = ttk.LabelFrame(frame, text="")
     frame_addr_connect.grid(column=0, row=0, padx=40, pady=20, columnspan=2)
 
-    myAddr_label = ttk.Label(frame_addr_connect, text="MyAddr (Client)")
+    myAddr_label = ttk.Label(frame_addr_connect, text="내 IP")
     myAddr_label.grid(column=0, row=0, sticky='W') #
-    peerAddr_label = ttk.Label(frame_addr_connect, text="Server Addr")
+    peerAddr_label = ttk.Label(frame_addr_connect, text="시스템 서버 IP")
     peerAddr_label.grid(column=1, row=0, sticky='W') #
 
     self.myAddr = tk.StringVar()
@@ -124,25 +123,25 @@ class Attendance:
     self.servAddr_entry.grid(column=1, row=1, sticky='W')
     
 
-    connect_button = ttk.Button(frame_addr_connect, text="Connect",\
-    command=self.connect_server) 
-    connect_button.grid(column=3, row=1)
-    connect_button.configure(state='disabled')
+    # connect_button = ttk.Button(frame_addr_connect, text="연결하기",\
+    # command=self.connect_server) 
+    # connect_button.grid(column=3, row=1)
+    # connect_button.configure(state='disabled')
     
 
-    cliDisplay_label = ttk.Label(frame, text="전송 내역")
+    cliDisplay_label = ttk.Label(frame, text="현재 출석 인원")
     cliDisplay_label.grid(column=0, row=1 )
-    scrol_w, scrol_h = 40, 20
-    self.scr_cliDisplay = scrolledtext.ScrolledText(frame, width=scrol_w,height=scrol_h, wrap=tk.WORD)
+    scrol_w, scrol_h = 40, 7
+    self.scr_cliDisplay = tk.Text(frame, width=scrol_w,height=scrol_h, wrap=tk.WORD)
     self.scr_cliDisplay.grid(column=0, row=2, sticky='WE') 
     
-    cliInput_label = ttk.Label(frame, text="강의 시작/종료 시간 입력 (Client) :")
+    cliInput_label = ttk.Label(frame, text="강의 시작/종료 시간 입력")
     cliInput_label.grid(column=0, row=3 )
     
-    self.scr_cliInput = scrolledtext.ScrolledText(frame, width=40, height=3, wrap=tk.WORD)
+    self.scr_cliInput = tk.Text(frame, width=40, height=3, wrap=tk.WORD)
     self.scr_cliInput.grid(column=0, row=4) 
 
-    cli_send_button = ttk.Button(frame, text="인원 체크 시작", command=self.cli_send_thread) 
+    cli_send_button = ttk.Button(frame, text="실행", command=self.cli_send_thread) 
     cli_send_button.grid(column=0, row=5, sticky='E')
 
     cli_send_time_button = ttk.Button(frame, text="강의 시작/종료 시간 전송", command=self.cli_send_time_thread) 
@@ -151,9 +150,7 @@ class Attendance:
     self.scr_cliInput.focus()
 
 
-#======================
-# Start GUI
-#======================
+# Start 
 print("출결 시스템 실행")
 sockChat = Attendance('Attendance')
 sockChat.win.mainloop()
