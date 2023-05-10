@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import cv2
 import numpy as np
@@ -27,6 +28,26 @@ class ServerCompare:
     global CameraCount
     global hostAddr
 
+=======
+# 2023 Capston Design Program
+# ServerCompare
+# 서버 - 인원 비교 기능
+
+import socket, sys, threading
+from threading import Thread 
+from time import sleep 
+import tkinter as tk
+from tkinter import ttk, scrolledtext, END
+SocketChat_PortNumber = 24000
+
+CameraCount = 50 # 카메라로 확인한 재실 인원
+AttendaceCount = 0 # 출결시스템 내 출석 인원
+registerStudentCount = 50 # 수강 인원
+
+class ServerCompare:
+  def __init__(self, mode):
+    global hostAddr
+>>>>>>> d54fa8f0f95d534503d981fdad381459f4890949
     self.win = tk.Tk()
     self.win.title("ServerCompare")
     self.mode = mode
@@ -39,6 +60,7 @@ class ServerCompare:
     self.createWidgets()
     
     # TCP 스레드 생성
+<<<<<<< HEAD
     serv_thread = Thread(target=self.RecvCompare, daemon=True) 
     serv_thread.start()
 
@@ -68,6 +90,19 @@ class ServerCompare:
     lecture_end_time=(0, 0)
     count = 0
     TIME = False
+=======
+    serv_thread = Thread(target=self.TCPServer, daemon=True) 
+    serv_thread.start()
+
+  # TCP server
+  def TCPServer(self):
+    global lecture_start_time # 강의 시작 시, 분
+    global lecture_end_time # 강의 종료 시, 분
+    global time_serv # 강의 시작, 종료 시간 수신 여부 표시
+    time_serv= 0
+    lecture_start_time=0
+    lecture_end_time=0
+>>>>>>> d54fa8f0f95d534503d981fdad381459f4890949
 
     self.servSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     self.servSock.bind((hostAddr, SocketChat_PortNumber)) 
@@ -80,6 +115,7 @@ class ServerCompare:
     self.peerAddr_entry.insert(END, self.cliAddr[0])
 
     while True:
+<<<<<<< HEAD
       # ================= 수신 ======================
 
       #print("일해욧")
@@ -165,12 +201,46 @@ class ServerCompare:
           messagebox.showinfo("부정 출석 방지 시스템","부정 출석이 감지되었습니다!") #메시지 박스를 띄운다.
           sleep(60)
 
+=======
+      servRecvMsg = self.conn.recv(512).decode()
+
+      if time_serv==0: # 시작시간 먼저 입력 받음
+        lecture_start_time = servRecvMsg.split(':') # : 기준으로 문자열 자름. (ex, '4:30' -> ['4', '30'])
+        lecture_start_time = lecture_start_time[1].replace("\n", "")
+        time_serv+=1
+        print(time_serv, lecture_start_time) # 디버그
+
+      elif time_serv==1: # 종료시간을 입력받음
+        lecture_end_time = servRecvMsg.split(':')
+        lecture_end_time = lecture_end_time[1].replace("\n", "")
+        time_serv+=1
+        print(time_serv, lecture_end_time) # 디버그
+
+      else:
+        self.compare()
+
+      if not servRecvMsg: # 수신한 메시지 없음
+        break
+
+      else: # 수신한 메시지 있음
+        self.scr_servDisplay.delete("1.0", "end")
+        self.scr_servDisplay.insert(tk.INSERT,">> " + servRecvMsg+"\n")
+      
+    self.conn.close()
+
+  def compare(self): # 재실 인원과 출결시스템 인원을 비교하는 함수
+    gap = CameraCount - 0.85 * registerStudentCount
+    if (gap<0): # 음수일 경우 부정출석
+      self.serv_send()
+      print("부정 출석이 의심됩니다!")
+>>>>>>> d54fa8f0f95d534503d981fdad381459f4890949
 
   def _quit(self):
     self.win.quit()
     self.win.destroy()
     exit()
 
+<<<<<<< HEAD
   def countCompare(self): # 재실 인원과 출결시스템 인원을 비교하는 함수
     global CameraCount
     global AttendanceCount
@@ -183,6 +253,8 @@ class ServerCompare:
 
     return gap
 
+=======
+>>>>>>> d54fa8f0f95d534503d981fdad381459f4890949
   def serv_send(self):
     msgToCli = "출결 초기화\n"
     self.scr_servDisplay.insert(tk.INSERT,"<< " + msgToCli)
@@ -221,6 +293,7 @@ class ServerCompare:
     serv_send_button.grid(column=0, row=5, sticky='E')
 
 
+<<<<<<< HEAD
 
 
 
@@ -308,5 +381,11 @@ def person_cognition():
 ###################### main ######################
 t = threading.Thread(target=person_cognition)
 t.start()
+=======
+#======================
+# Start GUI
+#======================
+print("부정 출석 방지 시스템 실행")
+>>>>>>> d54fa8f0f95d534503d981fdad381459f4890949
 sockChat = ServerCompare("ServerCompare")
 sockChat.win.mainloop()
