@@ -5,7 +5,10 @@
 import socket
 import sys
 import threading
+<<<<<<< HEAD
 from datetime import datetime
+=======
+>>>>>>> a13575e33c3df47ecdfe4207bf5866d41bf15954
 import tkinter as tk
 from threading import Thread
 from time import sleep 
@@ -83,6 +86,7 @@ class Attendance:
   # 전송함수
   def cli_send(self):
     while True:
+<<<<<<< HEAD
       now = datetime.now()
       nowHour = now.hour
       nowMinute = now.minute
@@ -90,6 +94,11 @@ class Attendance:
       msgToServer = str(count)
       self.scr_cliDisplay.delete("1.0", "end")
       self.scr_cliDisplay.insert(tk.INSERT,"현재 출석: " + msgToServer + "명  (" + str(now.time()) + ")\n")
+=======
+      msgToServer = str(count)
+      self.scr_cliDisplay.delete("1.0", "end")
+      self.scr_cliDisplay.insert(tk.INSERT,"현재 출석: " + msgToServer + "명\n")
+>>>>>>> a13575e33c3df47ecdfe4207bf5866d41bf15954
       self.cliSock.send(bytes(msgToServer.encode()))
       self.scr_cliInput.delete('1.0', END)
       sleep(1)
@@ -155,9 +164,13 @@ class Attendance:
     self.scr_cliInput.focus()
 
 
+<<<<<<< HEAD
 #======================
 # Start GUI
 #======================
+=======
+# Start 
+>>>>>>> a13575e33c3df47ecdfe4207bf5866d41bf15954
 print("출결 시스템 실행")
 sockChat = Attendance('Attendance')
 sockChat.win.mainloop()
